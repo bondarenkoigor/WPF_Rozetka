@@ -1,0 +1,130 @@
+﻿<Window x:Class="WPF_Rozetka.MainWindow"
+        x:Name="MainWondow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_Rozetka"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800"
+        xmlns:viewmodel="clr-namespace:WPF_Rozetka.ViewModel" 
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        d:DataContext="{d:DesignInstance Type=viewmodel:MainWindow__ViewModel}"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal" 
+        TextOptions.TextRenderingMode="Auto"        
+        Background="{DynamicResource MaterialDesignPaper}"
+        FontFamily="{DynamicResource MaterialDesignFont}"
+        Closing="MainWondow_Closing">
+    <Grid>
+        <DockPanel Margin="15">
+            <materialDesign:PackIcon Kind="Magnify" />
+            <TextBox Text="{Binding SearchBarText, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="150"></TextBox>
+
+            <ComboBox SelectedValue="{Binding Sorting, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Content" materialDesign:HintAssist.Hint="Сортировка" VerticalAlignment="Top" Margin="10 0 0 0">
+                <ComboBoxItem Content="По умолчанию" />
+                <ComboBoxItem Content="От дешевых к дорогим" />
+                <ComboBoxItem Content="От дорогих к дешевым" />
+            </ComboBox>
+
+            <ToggleButton Style="{StaticResource MaterialDesignSwitchLightToggleButton}" ToolTip="MaterialDesignSwitchLightToggleButton" VerticalAlignment="Top" DockPanel.Dock="Right" IsChecked="{Binding AdminMode}"/>
+            <Label Content="Admin mode" DockPanel.Dock="Right"></Label>
+
+            <StackPanel VerticalAlignment="Top" HorizontalAlignment="Right" Orientation="Horizontal" Visibility="{Binding AdminMode}">
+                <materialDesign:PopupBox StaysOpen="True" IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}">
+                    <Grid Width="300" Margin="8,8,8,8">
+                        <Grid.Resources>
+                            <Style TargetType="TextBox" BasedOn="{StaticResource MaterialDesignTextBox}">
+                                <Setter Property="materialDesign:HintAssist.IsFloating" Value="True" />
+                                <Setter Property="Margin" Value="8,8,8,8" />
+                            </Style>
+                        </Grid.Resources>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <TextBox Grid.Column="0" Grid.Row="1" materialDesign:HintAssist.Hint="Заголовок:" Text="{Binding TitleForAdding}"/>
+                        <TextBox Grid.Column="0" Grid.Row="2" materialDesign:HintAssist.Hint="Цена:" Text="{Binding PriceForAdding}"/>
+                        <TextBox Grid.Column="0" Grid.Row="3" materialDesign:HintAssist.Hint="URL сайта:" Text="{Binding URLForAdding}"/>
+                        <TextBox Grid.Column="0" Grid.Row="4" materialDesign:HintAssist.Hint="URL картинки:" Text="{Binding PicURLForAdding}"/>
+
+                        <StackPanel Grid.Row="5" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                            <Button Content="Add" Command="{Binding AddCommand}" />
+                            <Button Content="_Cancel" Command="{x:Static materialDesign:PopupBox.ClosePopupCommand}">
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </materialDesign:PopupBox>
+            </StackPanel>
+        </DockPanel>
+
+        <ScrollViewer Margin="0,40,0,0">
+            <ItemsControl ItemsSource="{Binding Products, UpdateSourceTrigger=PropertyChanged}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <materialDesign:Card Height="300" Width="200" Margin="10,10,0,10" materialDesign:ShadowAssist.ShadowDepth="Depth3">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="140" />
+                                    <RowDefinition Height="*" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Image
+                                    Source="{Binding ImgPath}"
+                                    Height="140"
+                                    Width="196"
+                                    Stretch="UniformToFill" />
+                                <StackPanel
+                                    Grid.Row="1"
+                                    Margin="8 24 8 0">
+                                    <TextBlock
+                                        Text="{Binding Title}"
+                                        FontSize="12"
+                                        TextWrapping="Wrap"
+                                        FontWeight="SemiBold">
+                                    </TextBlock>
+                                    <TextBlock
+                                       TextWrapping="Wrap"
+                                       VerticalAlignment="Center"
+                                       Text="{Binding Price, StringFormat={}{0}₴}" Margin="0,10,0,10"
+                                       FontSize="25"
+                                       Foreground="Red"
+                                       FontWeight="Bold"/>
+                                </StackPanel>
+                                <TextBlock x:Name="Id" Grid.Row="1" Text="{Binding Id, StringFormat=id:{0}}" HorizontalAlignment="Right" VerticalAlignment="Bottom" FontWeight="ExtraLight"></TextBlock>
+                                <Button Style="{StaticResource MaterialDesignFloatingActionMiniButton}" materialDesign:ShadowAssist.ShadowDepth="Depth2"
+                                        Command="{Binding BuyButtonClick}"
+                                    Grid.Row="1"
+                                    HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                                    Margin="0,0,25,25">
+                                    <materialDesign:PackIcon Kind="Cart" ></materialDesign:PackIcon>
+                                </Button>
+                                <Button Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Visibility="{Binding AdminMode,UpdateSourceTrigger=PropertyChanged}" Command="{Binding DeleteCommand}" CommandParameter="{Binding Text, ElementName=Id}" Background="{x:Null}" BorderThickness="0" Foreground="Black">
+                                    <Button.DataContext>
+                                        <viewmodel:MainWindow__ViewModel></viewmodel:MainWindow__ViewModel>
+                                    </Button.DataContext>
+                                    <materialDesign:PackIcon Kind="Delete" ></materialDesign:PackIcon>
+                                </Button>
+                            </Grid>
+                        </materialDesign:Card>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</Window>
